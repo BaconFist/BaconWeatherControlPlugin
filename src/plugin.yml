@@ -3,7 +3,7 @@ version: 1.0.1
 description: controls the weather in overworlds
 author: DasBaconfist <thomas@bratler.net>
 load: POSTWORLD
-website: https://github.com/BaconFist/MinecraftPlugins    
+website: https://dev.bukkit.org/projects/bacon-weather-control
 main: com.bratler.minecraft.baconweathercontrolplugin.Main
 commands:
     bwc-info:
