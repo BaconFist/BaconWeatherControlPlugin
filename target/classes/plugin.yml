@@ -1,0 +1,37 @@
+name: Bacon Weather Control
+version: 1.0.1
+description: controls the weather in overworlds
+author: DasBaconfist <thomas@bratler.net>
+load: POSTWORLD
+website: https://github.com/BaconFist/MinecraftPlugins    
+main: com.bratler.minecraft.baconweathercontrolplugin.Main
+commands:
+    bwc-info:
+        description: set how rainy it must be to rain
+        usage: /bwc-info
+        permission: BaconWeatherControl.Info
+    bwc-raininess:
+        description: set how rainy it must be to rain
+        usage: /bwc-raininess <0-100>
+        permission: BaconWeatherControl.SetRaininess
+    bwc-thunderness:
+        description: sgewitteret how thundery it must be to thunder
+        usage: /bwc-thunderness <0-100>
+        permission: BaconWeatherControl.SetThunderness
+    bwc-updateinterval:
+        description: set how often the weather should update
+        usage: /bwc-updateinterval <seconds>
+        permission: BaconWeatherControl.SetUpdateInterval
+permissions:
+    BaconWeatherControl.Info:
+        description: Allows you to show the current settings
+        default: true
+    BaconWeatherControl.SetRaininess:
+        description: Allows you to change the raininess
+        default: op
+    BaconWeatherControl.SetThunderness:
+        description: Allows you to change the thunderness
+        default: op
+    BaconWeatherControl.SetUpdateInterval:
+        description: Allows you to change the update interval
+        default: op
