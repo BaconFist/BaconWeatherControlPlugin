@@ -5,13 +5,14 @@
  */
 package com.bratler.minecraft.baconweathercontrolplugin;
 
-import java.util.Iterator;
+import java.io.File;
 import java.util.Random;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.weather.ThunderChangeEvent;
@@ -35,19 +36,20 @@ public class Main extends JavaPlugin implements CommandExecutor, Listener, Runna
     private static final String CONF_UID_RAININESS_REQUIRED = "RaininessRequired";
     private static final String CONF_UID_UPDATE_INTERVAL = "UpdateInterval";
 
-    private static final int CONF_DEFAULT_THUNDERNESS_REQUIRED = 80;
-    private static final int CONF_DEFAULT_RAININESS_REQUIRED = 70;
-    private static final int CONF_DEFAULT_UPDATE_INTERVAL = 600;
-
     private boolean canThunder;
     private boolean canRain;
 
     private int schedulerTaskId;
-    
+
+    private long configLastModified;
+
+    private File configFileHandle;
+
     public Main() {
         this.schedulerTaskId = -1;
         this.canRain = false;
         this.canThunder = false;
+        configFileHandle = new File(getDataFolder(), "config.yml");
     }
 
     @Override
@@ -66,11 +68,11 @@ public class Main extends JavaPlugin implements CommandExecutor, Listener, Runna
     }
 
     private void setConfigDefaults() {
-        getConfig().addDefault(CONF_UID_UPDATE_INTERVAL, CONF_DEFAULT_UPDATE_INTERVAL);
-        getConfig().addDefault(CONF_UID_THUNDERNESS_REQUIRED, CONF_DEFAULT_THUNDERNESS_REQUIRED);
-        getConfig().addDefault(CONF_UID_RAININESS_REQUIRED, CONF_DEFAULT_RAININESS_REQUIRED);
-
-        getConfig().options().copyDefaults();
+        if (!configFileHandle.exists()) {
+            getLogger().info("config.yml not found => creating new one.");
+            saveDefaultConfig();
+            configLastModified = configFileHandle.lastModified();
+        }
     }
 
     public void updateScheduler() {
@@ -83,6 +85,22 @@ public class Main extends JavaPlugin implements CommandExecutor, Listener, Runna
     public void onDisable() {
         getConfig().options().copyDefaults();
         saveConfig();
+    }
+
+    @Override
+    public FileConfiguration getConfig() {
+        if(configFileHandle.lastModified() != configLastModified){
+            reloadConfig();
+            configLastModified = configFileHandle.lastModified();
+            getLogger().info("config.yml has been modified => reload.");
+        }
+        
+        return super.getConfig(); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    private void onChangeConfig() {
+        saveConfig();
+        configLastModified = configFileHandle.lastModified();
     }
 
     @Override
@@ -138,6 +156,7 @@ public class Main extends JavaPlugin implements CommandExecutor, Listener, Runna
         }
         if (success) {
             Bukkit.broadcastMessage("required raininess has been set to " + getConfig().getInt(CONF_UID_RAININESS_REQUIRED) + "% by " + sender.getName() + ".");
+            onChangeConfig();
         } else {
             sender.sendMessage("make sure the first argument is a number inbetween 0 and 100.");
         }
@@ -162,6 +181,7 @@ public class Main extends JavaPlugin implements CommandExecutor, Listener, Runna
         }
         if (success) {
             Bukkit.broadcastMessage("required thunderness has been set to " + getConfig().getInt(CONF_UID_THUNDERNESS_REQUIRED) + "% by " + sender.getName() + ".");
+            onChangeConfig();
         } else {
             sender.sendMessage("make sure the first argument is a number inbetween 0 and 100.");
         }
@@ -186,6 +206,7 @@ public class Main extends JavaPlugin implements CommandExecutor, Listener, Runna
         }
         if (success) {
             Bukkit.broadcastMessage("weather update interval has been set to " + getConfig().getInt(CONF_UID_UPDATE_INTERVAL) + " seconds by " + sender.getName() + ".");
+            onChangeConfig();
         } else {
             sender.sendMessage("make sure the first argument is a number greater than 0.");
         }

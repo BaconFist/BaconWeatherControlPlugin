@@ -1,0 +1,8 @@
+## minimimum probability for a thunderstorm
+ThundernessRequired: 80
+
+## minimimum probability for rain
+RaininessRequired: 70
+
+## interval for weather updates/changes in seconds
+UpdateInterval: 600
